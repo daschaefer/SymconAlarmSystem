@@ -1,0 +1,68 @@
+{
+	"elements":
+	[
+         { "type": "CheckBox", "name": "Notification_Push", "caption": "Pushbenachrichtigung bei Alarm senden" },
+         { "type": "CheckBox", "name": "HideEventList", "caption": "Protokoll automatisch ausblenden" },
+		 {
+            "type": "List",
+            "name": "TriggerList",
+            "caption": "Auslöser:",
+            "rowCount": 20,
+            "add": true,
+            "delete": true,
+            "sort": {
+                "column": "name",
+                "direction": "ascending"
+            },
+            "columns": 
+            [
+                 {
+                    "label": "Aktiv",
+                    "name": "Active",
+                    "width": "40px",
+                    "add": "1",
+                    "edit": { "type": "Select", "caption": "Aktiv:",
+                                "options": [
+                                    { "label": "Nein", "value": 0 },
+                                    { "label": "Ja", "value": 1 }
+                                ]
+                            }
+                },
+                {
+                    "name": "ObjectID", 
+                    "label": "Auslöser", 
+                    "width": "60px", 
+                    "add": "",
+                    "edit": {
+                        "caption": "Auslöser ID:",
+                        "type": "SelectObject"
+                    }
+                },
+                {
+                    "label": "Bezeichnung",
+                    "name": "Name",
+                    "width": "auto",
+                    "add": "",
+                    "save": false,
+                    "edit": {
+                        "caption": "Bezeichnung:",
+                        "type": "ValidationTextBox"
+                    }
+                }, {
+                    "label": "Trigger",
+                    "name": "TriggerValue",
+                    "width": "60px",
+                    "add": "0",
+                    "edit": { "type": "Select", "caption": "Trigger:",
+                                "options": [
+                                    { "label": "0", "value": 0 },
+                                    { "label": "1", "value": 1 },
+                                    { "label": "true", "value": 2 },
+                                    { "label": "false", "value": 3 }
+                                ]
+                            }
+                }
+            ]
+        }
+	]
+}

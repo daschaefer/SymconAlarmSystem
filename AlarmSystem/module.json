@@ -1,0 +1,14 @@
+{
+	"id": "{1257D99B-36E3-4E49-96F8-ACB8124DD372}",
+	"name": "AlarmSystem",
+	"type": 3,
+	"vendor": "Daniel Schäfer",
+	"aliases": 
+	[
+		"Symcon Alarmanlage"
+	],
+	"parentRequirements": [""],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "ALRM"
+}
