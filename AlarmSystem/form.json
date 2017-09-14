@@ -65,7 +65,10 @@
                 }
             ]
         },
-        { "type": "NumberSpinner", "name": "TriggerDelay", "caption": "Auslöseverzögerung (s):" }
+        { "type": "NumberSpinner", "name": "TriggerDelay", "caption": "Auslöseverzögerung (s):" },
+        { "type": "SelectObject", "name": "PreArmScript", "caption": "Vor 'Scharf' ausführen:" },
+        { "type": "SelectObject", "name": "PreDisarmScript", "caption": "Vor 'Unscharf' ausführen:" },
+        { "type": "SelectObject", "name": "PreDisableScript", "caption": "Vor 'Aus' ausführen:" }
 	],
     "actions":
     [

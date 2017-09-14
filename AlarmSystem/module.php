@@ -8,10 +8,12 @@ class AlarmSystem extends IPSModule
 
         $this->RegisterPropertyInteger("Notification_Push", false);
         $this->RegisterPropertyInteger("HideEventList", 0); 
-
         $this->RegisterPropertyString("TriggerList", ""); 
         $this->RegisterPropertyInteger("TriggerDelay", 0); 
         $this->RegisterPropertyInteger("WFC", 0); 
+        $this->RegisterPropertyInteger("PreArmScript", 0); 
+        $this->RegisterPropertyInteger("PreDisarmScript", 0); 
+        $this->RegisterPropertyInteger("PreDisableScript", 0);
     }
     
     public function ApplyChanges() {
@@ -141,13 +143,13 @@ class AlarmSystem extends IPSModule
             case "STATE":
                 switch ($Value) {
                     case 0:
-                        $this->Disable();
+                        $this->Disable(true);
                         break;
                     case 1:
-                        $this->Disarm();
+                        $this->Disarm(true);
                         break;
                     case 2:
-                        $this->Arm();
+                        $this->Arm(true);
                         break;
                 }
 
@@ -159,34 +161,73 @@ class AlarmSystem extends IPSModule
     
 
     // PUBLIC ACCESSIBLE FUNCTIONS
-    public function Disable() {
-        $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
+    public function Disable($preExecuteScripts) {
+        $continue = false;
 
-        $this->ResetTrigger();
-
-        $this->LogEvent("Alarmanlage 'Aus' geschaltet.");
-
-        SetValue($STATE, 0);
-    }
-
-    public function Disarm() {
-        $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
+        if($preExecuteScripts) {
+            if($this->ReadPropertyInteger("PreDisableScript") > 0)
+                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisableScript"), array()), FILTER_VALIDATE_BOOLEAN);
+            else
+                $continue = true;        
+        }
+        else
+            $continue = true;
         
-        $this->ResetTrigger();
+        if($continue) {
+            $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
 
-        $this->LogEvent("Alarmanlage 'Unscharf' geschaltet.");
+            $this->ResetTrigger();
 
-        SetValue($STATE, 1);
+            $this->LogEvent("Alarmanlage 'Aus' geschaltet.");
+
+            SetValue($STATE, 0);
+        }
     }
 
-    public function Arm() {
-        $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
+    public function Disarm($preExecuteScripts) {
+        $continue = false;
 
-        $this->ResetTrigger();
+        if($preExecuteScripts) {
+            if($this->ReadPropertyInteger("PreDisarmScript") > 0)
+                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisarmScript"), array()), FILTER_VALIDATE_BOOLEAN);
+            else
+                $continue = true;        
+        }
+        else
+            $continue = true;
+        
+        if($continue) {
+            $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
+            
+            $this->ResetTrigger();
 
-        $this->LogEvent("Alarmanlage 'Scharf' geschaltet.");
+            $this->LogEvent("Alarmanlage 'Unscharf' geschaltet.");
 
-        SetValue($STATE, 2);
+            SetValue($STATE, 1);
+        }
+    }
+
+    public function Arm($preExecuteScripts) {
+        $continue = false;
+
+        if($preExecuteScripts) {
+            if($this->ReadPropertyInteger("PreArmScript") > 0)
+                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreArmScript"), array()), FILTER_VALIDATE_BOOLEAN);
+            else
+                $continue = true;
+        }
+        else
+            $continue = true;
+
+        if($continue) {
+            $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
+
+            $this->ResetTrigger();
+
+            $this->LogEvent("Alarmanlage 'Scharf' geschaltet.");
+
+            SetValue($STATE, 2);
+        }
     }
     
     public function Trigger($identifier) {
