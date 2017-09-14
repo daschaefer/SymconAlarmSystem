@@ -1,9 +1,10 @@
 {
 	"elements":
 	[
-         { "type": "CheckBox", "name": "Notification_Push", "caption": "Pushbenachrichtigung bei Alarm senden" },
-         { "type": "CheckBox", "name": "HideEventList", "caption": "Protokoll automatisch ausblenden" },
-		 {
+        { "type": "SelectObject", "name": "WFC", "caption": "WFC Objekt:" },
+        { "type": "CheckBox", "name": "Notification_Push", "caption": "Pushbenachrichtigung bei Alarm senden" },
+        { "type": "CheckBox", "name": "HideEventList", "caption": "Protokoll automatisch ausblenden" },
+		{
             "type": "List",
             "name": "TriggerList",
             "caption": "Auslöser:",
@@ -14,7 +15,7 @@
                 "column": "name",
                 "direction": "ascending"
             },
-            "columns": 
+            "columns":
             [
                  {
                     "label": "Aktiv",
@@ -53,7 +54,7 @@
                     "name": "TriggerValue",
                     "width": "60px",
                     "add": "0",
-                    "edit": { "type": "Select", "caption": "Trigger:",
+                    "edit": { "type": "Select", "caption": "Auslösewert:",
                                 "options": [
                                     { "label": "0", "value": 0 },
                                     { "label": "1", "value": 1 },
@@ -63,6 +64,11 @@
                             }
                 }
             ]
-        }
-	]
+        },
+        { "type": "NumberSpinner", "name": "TriggerDelay", "caption": "Auslöseverzögerung (s):" }
+	],
+    "actions":
+    [
+        { "type": "Button", "label": "Protokolle zurücksetzen", "onClick": "ALRM_ResetLogs($id);" }
+    ]
 }

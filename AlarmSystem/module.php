@@ -10,6 +10,8 @@ class AlarmSystem extends IPSModule
         $this->RegisterPropertyInteger("HideEventList", 0); 
 
         $this->RegisterPropertyString("TriggerList", ""); 
+        $this->RegisterPropertyInteger("TriggerDelay", 0); 
+        $this->RegisterPropertyInteger("WFC", 0); 
     }
     
     public function ApplyChanges() {
@@ -18,10 +20,7 @@ class AlarmSystem extends IPSModule
         // Get Handler for Archive
         $instances = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}'); 
         $archive_handler = $instances[0];
-
-        // Get Webfront Configurator
-        $instances = IPS_GetInstanceListByModuleID('{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}');
-        $webfront = $instances[0];
+        
 
         // Create AlarmController script
         $alarmControllerScriptID = @$this->GetIDForIdent("AlarmController");
@@ -43,6 +42,17 @@ class AlarmSystem extends IPSModule
             AC_SetAggregationType($archive_handler, $var, 0);
             IPS_ApplyChanges($archive_handler);
             IPS_SetName($var, "Protokoll");
+        }
+        if($this->ReadPropertyInteger("HideEventList") == 1)
+                IPS_SetHidden($var, true);
+
+        $var = @IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(3);
+            IPS_SetIdent($var, "EventListHTML");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetName($var, "HTML Protokoll");
+            IPS_SetVariableCustomProfile($var, "~HTMLBox");
         }
         if($this->ReadPropertyInteger("HideEventList") == 1)
                 IPS_SetHidden($var, true);
@@ -180,6 +190,10 @@ class AlarmSystem extends IPSModule
     }
     
     public function Trigger($identifier) {
+        if($this->ReadPropertyInteger("TriggerDelay") > 0) {
+            sleep($this->ReadPropertyInteger("TriggerDelay"));
+        }
+
         $STATE = IPS_GetObjectIDByIdent('STATE', $this->InstanceID);
         $ALARM = IPS_GetObjectIDByIdent('ALARM', $this->InstanceID);
         $TRIGGER = IPS_GetObjectIDByIdent('TRIGGER', $this->InstanceID);
@@ -192,9 +206,10 @@ class AlarmSystem extends IPSModule
 
             IPS_SetHidden(IPS_GetObjectIDByIdent('EventList', $this->InstanceID), false);
 
-            // Notify
-            if($this->ReadPropertyInteger("Notification_Push") == 1)
-                WFC_PushNotification($webfront, "Ein Alarm wurde ausgelöst!", "Auslöser: '".$identifier."'", 'alarm', 0);
+            // Notifications
+            if($this->ReadPropertyInteger("Notification_Push") == 1 && $this->ReadPropertyInteger("WFC") > 0) {
+                WFC_PushNotification($this->ReadPropertyInteger("WFC"), "Ein Alarm wurde ausgelöst!", "Auslöser: '".$identifier."'", 'alarm', 0);
+            }
         }
     }
 
@@ -209,14 +224,33 @@ class AlarmSystem extends IPSModule
             SetValue($ALARM, false);
             SetValue($STATE, 2);
 
-            if($this->ReadPropertyInteger("HideEventList") == 1)
+            if($this->ReadPropertyInteger("HideEventList") == 1) {
                 IPS_SetHidden(IPS_GetObjectIDByIdent('EventList', $this->InstanceID), true);
+                IPS_SetHidden(IPS_GetObjectIDByIdent('EventListHTML', $this->InstanceID), true);
+            }
         }
+    }
+
+    public function ResetLogs() {
+        $instances = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}'); 
+        $archive_handler = $instances[0];
+
+        SetValue(IPS_GetObjectIDByIdent("EventList", $this->InstanceID), "");
+        AC_DeleteVariableData($archive_handler, IPS_GetObjectIDByIdent("EventList", $this->InstanceID), 0, 0);
+        AC_SetLoggingStatus($archive_handler, IPS_GetObjectIDByIdent("EventList", $this->InstanceID), true);
+        AC_SetAggregationType($archive_handler, IPS_GetObjectIDByIdent("EventList", $this->InstanceID), 0);
+        IPS_ApplyChanges($archive_handler);
+
+        SetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID), "");
+
+        $this->LogEvent("Protokolle wurden manuell zurückgesetzt.");
     }
     
     // PRIVATE FUNCTIONS
     protected function LogEvent($message) {
+        $date = date("d. F Y H:i",time());
         SetValue(IPS_GetObjectIDByIdent("EventList", $this->InstanceID), $message);
+        SetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID), $date." - ".$message."<br>".GetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID)));
     }
 
     protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize) {
