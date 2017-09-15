@@ -7,13 +7,13 @@ class AlarmSystem extends IPSModule
         parent::Create();
 
         $this->RegisterPropertyInteger("Notification_Push", false);
-        $this->RegisterPropertyInteger("HideEventList", 0); 
         $this->RegisterPropertyString("TriggerList", ""); 
         $this->RegisterPropertyInteger("TriggerDelay", 0); 
         $this->RegisterPropertyInteger("WFC", 0); 
         $this->RegisterPropertyInteger("PreArmScript", 0); 
         $this->RegisterPropertyInteger("PreDisarmScript", 0); 
         $this->RegisterPropertyInteger("PreDisableScript", 0);
+        $this->RegisterPropertyInteger("KeepProtocolForDays", 7);
     }
     
     public function ApplyChanges() {
@@ -33,6 +33,19 @@ class AlarmSystem extends IPSModule
         }
         IPS_SetHidden($alarmControllerScriptID, true);
 
+        // Create ShortenProtocol script
+        $scriptID = @$this->GetIDForIdent("ShortenProtocol");
+        if($scriptID === false) {
+            $scriptID = $this->RegisterScript("ShortenProtocol", "ShortenProtocol", file_get_contents(__DIR__ . "/ShortenProtocol.php"), 100);
+            $eid = IPS_CreateEvent(1);
+            IPS_SetParent($eid, $scriptID);
+            IPS_SetEventCyclicTimeFrom($eid, 0, 0, 0);
+            IPS_SetEventActive($eid, true);
+        } else {
+            IPS_SetScriptContent($scriptID, file_get_contents(__DIR__ . "/ShortenProtocol.php"));
+        }
+        IPS_SetHidden($scriptID, true);
+
         // Variables
         // Alarmprotokoll
         $var = @IPS_GetObjectIDByIdent("EventList", $this->InstanceID);
@@ -45,8 +58,6 @@ class AlarmSystem extends IPSModule
             IPS_ApplyChanges($archive_handler);
             IPS_SetName($var, "Protokoll");
         }
-        if($this->ReadPropertyInteger("HideEventList") == 1)
-                IPS_SetHidden($var, true);
 
         $var = @IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID);
         if(!$var) {
@@ -56,8 +67,16 @@ class AlarmSystem extends IPSModule
             IPS_SetName($var, "HTML Protokoll");
             IPS_SetVariableCustomProfile($var, "~HTMLBox");
         }
-        if($this->ReadPropertyInteger("HideEventList") == 1)
-                IPS_SetHidden($var, true);
+
+        $var = @IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(3);
+            IPS_SetIdent($var, "EventListJSON");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetName($var, "JSON Protokoll");
+            IPS_SetHidden($var, true);
+            SetValue($var, json_encode(array()));
+        }
 
         // Status
         $this->RegisterProfileIntegerEx("ALARM.Status", "", "", "", Array(
@@ -94,6 +113,16 @@ class AlarmSystem extends IPSModule
             IPS_SetName($var, "TRIGGER");
             IPS_SetHidden($var, true);
         }
+
+        $var = @IPS_GetObjectIDByIdent("KeepProtocolForDays", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(1);
+            IPS_SetIdent($var, "KeepProtocolForDays");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetName($var, "KeepProtocolForDays");
+            IPS_SetHidden($var, true);
+        }
+        SetValue($var, $this->ReadPropertyInteger("KeepProtocolForDays"));
         
         // check events
         $arrString = $this->ReadPropertyString("TriggerList");
@@ -264,17 +293,40 @@ class AlarmSystem extends IPSModule
             SetValue($TRIGGER, '');
             SetValue($ALARM, false);
             SetValue($STATE, 2);
-
-            if($this->ReadPropertyInteger("HideEventList") == 1) {
-                IPS_SetHidden(IPS_GetObjectIDByIdent('EventList', $this->InstanceID), true);
-                IPS_SetHidden(IPS_GetObjectIDByIdent('EventListHTML', $this->InstanceID), true);
-            }
         }
     }
 
-    public function ResetLogs() {
+    public function ShortenProtocol($days) {
         $instances = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}'); 
         $archive_handler = $instances[0];
+
+        $time = time();
+        $holdForSeconds = $days*24*60*60;
+
+        SetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID), "");
+
+        $eventList = json_decode(GetValue(IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID)), true);
+        $temp = array();
+        foreach ($eventList as $key => $value) {
+            if($time-$key < $holdForSeconds) {
+                $date = date("d. F Y H:i", $key);
+                $temp[$key] = $value;
+                SetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID), $date." - ".$value."<br>".GetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID)));
+            }
+        }
+
+        $eventList = $temp;
+
+        AC_DeleteVariableData($archive_handler, IPS_GetObjectIDByIdent("EventList", $this->InstanceID), 978307200, $time-$holdForSeconds);
+
+        SetValue(IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID), json_encode($eventList));
+    }
+
+    public function ResetProtocol() {
+        $instances = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}'); 
+        $archive_handler = $instances[0];
+
+        SetValue(IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID), json_encode(array()));
 
         SetValue(IPS_GetObjectIDByIdent("EventList", $this->InstanceID), "");
         AC_DeleteVariableData($archive_handler, IPS_GetObjectIDByIdent("EventList", $this->InstanceID), 0, 0);
@@ -289,8 +341,15 @@ class AlarmSystem extends IPSModule
     
     // PRIVATE FUNCTIONS
     protected function LogEvent($message) {
-        $date = date("d. F Y H:i",time());
+        $time = time();
+        $date = date("d. F Y H:i", $time);
+
+        $eventListJSON = json_decode(GetValue(IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID)), true);
+        $eventListJSON[$time] = $message;
+        SetValue(IPS_GetObjectIDByIdent("EventListJSON", $this->InstanceID), json_encode($eventListJSON));
+
         SetValue(IPS_GetObjectIDByIdent("EventList", $this->InstanceID), $message);
+
         SetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID), $date." - ".$message."<br>".GetValue(IPS_GetObjectIDByIdent("EventListHTML", $this->InstanceID)));
     }
 

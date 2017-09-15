@@ -1,9 +1,6 @@
 {
 	"elements":
 	[
-        { "type": "SelectObject", "name": "WFC", "caption": "WFC Objekt:" },
-        { "type": "CheckBox", "name": "Notification_Push", "caption": "Pushbenachrichtigung bei Alarm senden" },
-        { "type": "CheckBox", "name": "HideEventList", "caption": "Protokoll automatisch ausblenden" },
 		{
             "type": "List",
             "name": "TriggerList",
@@ -65,13 +62,16 @@
                 }
             ]
         },
+        { "type": "SelectObject", "name": "WFC", "caption": "WFC Objekt:" },
+        { "type": "CheckBox", "name": "Notification_Push", "caption": "Pushbenachrichtigung bei Alarm senden" },
         { "type": "NumberSpinner", "name": "TriggerDelay", "caption": "Auslöseverzögerung (s):" },
+        { "type": "NumberSpinner", "name": "KeepProtocolForDays", "caption": "Protokoll behalten (Tage) :" },
         { "type": "SelectObject", "name": "PreArmScript", "caption": "Vor 'Scharf' ausführen:" },
         { "type": "SelectObject", "name": "PreDisarmScript", "caption": "Vor 'Unscharf' ausführen:" },
         { "type": "SelectObject", "name": "PreDisableScript", "caption": "Vor 'Aus' ausführen:" }
 	],
     "actions":
     [
-        { "type": "Button", "label": "Protokolle zurücksetzen", "onClick": "ALRM_ResetLogs($id);" }
+        { "type": "Button", "label": "Protokolle zurücksetzen", "onClick": "ALRM_ResetProtocol($id);" }
     ]
 }
