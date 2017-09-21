@@ -191,12 +191,19 @@ class AlarmSystem extends IPSModule
 
     // PUBLIC ACCESSIBLE FUNCTIONS
     public function Disable($preExecuteScripts) {
+		if(GetValue(IPS_GetObjectIDByIdent('STATE', $this->InstanceID)) == 0)
+			return false;
+			
         $continue = false;
 
         if($preExecuteScripts) {
-            if($this->ReadPropertyInteger("PreDisableScript") > 0)
-                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisableScript"), array()), FILTER_VALIDATE_BOOLEAN);
-            else
+			if($this->ReadPropertyInteger("PreDisableScript") > 0) {
+				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisableScript"), array()));
+				if($continue == "true")
+					$continue = true;
+				else
+					$continue = false;
+            } else
                 $continue = true;        
         }
         else
@@ -214,12 +221,19 @@ class AlarmSystem extends IPSModule
     }
 
     public function Disarm($preExecuteScripts) {
+		if(GetValue(IPS_GetObjectIDByIdent('STATE', $this->InstanceID)) == 1)
+			return false;
+		
         $continue = false;
 
         if($preExecuteScripts) {
-            if($this->ReadPropertyInteger("PreDisarmScript") > 0)
-                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisarmScript"), array()), FILTER_VALIDATE_BOOLEAN);
-            else
+            if($this->ReadPropertyInteger("PreDisarmScript") > 0) {
+				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisarmScript"), array()));
+				if($continue == "true")
+					$continue = true;
+				else
+					$continue = false;
+            } else
                 $continue = true;        
         }
         else
@@ -237,12 +251,19 @@ class AlarmSystem extends IPSModule
     }
 
     public function Arm($preExecuteScripts) {
+		if(GetValue(IPS_GetObjectIDByIdent('STATE', $this->InstanceID)) == 2)
+			return false;
+		
         $continue = false;
 
         if($preExecuteScripts) {
-            if($this->ReadPropertyInteger("PreArmScript") > 0)
-                $continue = filter_var(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreArmScript"), array()), FILTER_VALIDATE_BOOLEAN);
-            else
+            if($this->ReadPropertyInteger("PreArmScript") > 0) {
+				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreArmScript"), array()));
+				if($continue == "true")
+					$continue = true;
+				else
+					$continue = false;
+            } else
                 $continue = true;
         }
         else
