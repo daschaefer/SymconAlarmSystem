@@ -160,7 +160,10 @@ class AlarmSystem extends IPSModule
                     IPS_SetEventTrigger($_EVENT, 4, $listitem->ObjectID);
                     IPS_SetEventTriggerValue($_EVENT, $triggerValue);
                     IPS_SetParent($_EVENT, $alarmControllerScriptID);
-                    IPS_SetEventActive($_EVENT, true);
+                    if($listitem->Active == 1)
+                        IPS_SetEventActive($_EVENT, true);
+                    else
+                        IPS_SetEventActive($_EVENT, false);
                 } 
             }
         }
