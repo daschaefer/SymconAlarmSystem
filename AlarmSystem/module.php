@@ -128,7 +128,7 @@ class AlarmSystem extends IPSModule
         $arrString = $this->ReadPropertyString("TriggerList");
         $arr = json_decode($arrString);
 
-        if(count($arr) > 0)
+        if(strlen($arrString) > 0 && count($arr) > 0)
         {
             foreach($arr as $listitem)
             {
@@ -202,7 +202,7 @@ class AlarmSystem extends IPSModule
         if($preExecuteScripts) {
 			if($this->ReadPropertyInteger("PreDisableScript") > 0) {
 				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisableScript"), array()));
-				if($continue == "true")
+				if($continue == "1")
 					$continue = true;
 				else
 					$continue = false;
@@ -232,7 +232,7 @@ class AlarmSystem extends IPSModule
         if($preExecuteScripts) {
             if($this->ReadPropertyInteger("PreDisarmScript") > 0) {
 				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreDisarmScript"), array()));
-				if($continue == "true")
+				if($continue == "1")
 					$continue = true;
 				else
 					$continue = false;
@@ -262,7 +262,7 @@ class AlarmSystem extends IPSModule
         if($preExecuteScripts) {
             if($this->ReadPropertyInteger("PreArmScript") > 0) {
 				$continue = trim(IPS_RunScriptWaitEx($this->ReadPropertyInteger("PreArmScript"), array()));
-				if($continue == "true")
+				if($continue == "1")
 					$continue = true;
 				else
 					$continue = false;
@@ -281,6 +281,10 @@ class AlarmSystem extends IPSModule
 
             SetValue($STATE, 2);
         }
+    }
+
+    public function GetState() {
+        return GetValue(IPS_GetObjectIDByIdent('STATE', $this->InstanceID));
     }
     
     public function Trigger($identifier) {

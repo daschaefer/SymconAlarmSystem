@@ -7,7 +7,7 @@
 	[
 		"Symcon Alarmanlage"
 	],
-	"parentRequirements": [""],
+	"parentRequirements": [],
 	"childRequirements": [],
 	"implemented": [],
 	"prefix": "ALRM"
