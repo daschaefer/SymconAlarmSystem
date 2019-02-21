@@ -52,7 +52,6 @@ Danach ist es möglich eine neue AlarmSystem Instanz innerhalb des Objektbaumes 
 
 **Vor 'Scharf' ausführen**
 
-<<<<<<< HEAD
 *Skript welches vor dem Scharfschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";*
 
 **Vor 'Unscharf' ausführen**
@@ -62,17 +61,6 @@ Danach ist es möglich eine neue AlarmSystem Instanz innerhalb des Objektbaumes 
 **Vor 'Aus' ausführen**
 
 *Skript welches vor dem Ausschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";*
-=======
-*Skript welches vor dem Scharfschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
-
-**Vor 'Unscharf' ausführen**
-
-*Skript welches vor dem Unscharfschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
-
-**Vor 'Aus' ausführen**
-
-*Skript welches vor dem Ausschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
->>>>>>> ef838ba30edd283ffa2e84333d5d5e883dc6498b
 
 ## 3. Variablen
 **ALARM**
