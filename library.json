@@ -3,7 +3,10 @@
 	"author": "Daniel Schäfer",
 	"name": "Alarm System",
 	"url": "https://github.com/daschaefer/SymconAlarmSystem.git",
-	"version": "2.4",
+	"compatibility": {
+        "version": "5.0"
+    },
+	"version": "2.5",
 	"build": 0,
 	"date": 0
 }

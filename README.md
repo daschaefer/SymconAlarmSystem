@@ -25,6 +25,11 @@ Im "Module Control" (Kern Instanzen->Modules) die URL "https://github.com/dascha
 Danach ist es möglich eine neue AlarmSystem Instanz innerhalb des Objektbaumes von IP-Symcon zu erstellen.
 
 ### Konfiguration innerhalb IPS
+
+**WFC Objekt**
+
+*Das WFC Objekt welches für den Versand der Push Notifications verantwortlich sein soll*
+
 **Pushbenachrichtigung bei Alarm senden**
 
 *Push Benachrichtigungen über IP-Symcon aktivieren/deaktivieren*
@@ -36,6 +41,26 @@ Danach ist es möglich eine neue AlarmSystem Instanz innerhalb des Objektbaumes 
 **Auslöser**
 
 *Definition der Auslöser Variablen und deren Auslösewert*
+
+**Auslöseverzögerung**
+
+*Verzögerung der Auslösung in Sekunden*
+
+**Protokoll behalten**
+
+*Protokolleinträge älter als X Tage werden verworfen*
+
+**Vor 'Scharf' ausführen**
+
+*Skript welches vor dem Scharfschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
+
+**Vor 'Unscharf' ausführen**
+
+*Skript welches vor dem Unscharfschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
+
+**Vor 'Aus' ausführen**
+
+*Skript welches vor dem Ausschalten ausgeführt wird. Kann genutzt werden um Prüfungen vorzunehmen. Rückgabewert muss als echo erfolgen, "0" = misserfolg / "1" = erfolg. Das Skript muss einen Wert als String ausgeben. Beispiel: echo "0";
 
 ## 3. Variablen
 **ALARM**
@@ -68,4 +93,10 @@ Schaltet die Alarmanlage auf Unscharf.
 ALRM_Trigger(integer $InstanceID, variant $identifier)
 ```
 Alarmanlage auslösen, wobei $identifier irgendein String sein kann.
+
+---
+```php
+ALRM_GetState(integer $InstanceID)
+```
+Gibt den aktuellen Status der Alarmanlage zurück, 0 = aus, 1 = unscharf, 2 = scharf, 3 = alarm
 
